@@ -77,10 +77,12 @@ jobs:
       - run:
           name: Fix vulnerabilities
           command: |
+            cd frontend
             npm audit fix --audit-level=critical
       - run:
           name: Run frontend scan
           command: |
+            cd frontend
             npm audit --audit-level=critical
 
 
@@ -99,10 +101,12 @@ jobs:
       - run:
           name: Fix vulnerabilities
           command: |
+            cd backend
             npm audit fix --audit-level=critical
       - run:
           name: Run backend scan
           command: |
+            cd backend
             npm audit --audit-level=critical
 
 workflows:
