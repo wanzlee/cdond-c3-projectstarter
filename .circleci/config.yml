@@ -207,15 +207,15 @@ jobs:
       - run:
           name: Send migration status to kvdb.io
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            cd backend
+            if grep -q "has been executed successfully." ./migrations_dump.txt
             then
               curl https://kvdb.io/BwgZrp6R4R39Dhm7tFu5V6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             else
               curl https://kvdb.io/BwgZrp6R4R39Dhm7tFu5V6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '0'
             fi
-     # Here's where you will add some code to rollback on failure
-     - destroy-environment
-     - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
 workflows:
   default:
