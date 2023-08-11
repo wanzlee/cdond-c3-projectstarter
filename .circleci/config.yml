@@ -171,7 +171,7 @@ jobs:
           command: |
             aws --region us-east-1 cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople 
       - run:
@@ -245,7 +245,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
+            export BACKEND_IP=$(aws --region us-east-1 ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicDnsName' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -297,9 +297,9 @@ workflows:
           filters:
             branches:
               only: [master]
-      # - configure-infrastructure:
-      #    requires: [deploy-infrastructure]
-      # - run-migrations:
-      #    requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #    requires: [run-migrations]
+      - configure-infrastructure:
+         requires: [deploy-infrastructure]
+      - run-migrations:
+         requires: [configure-infrastructure]
+      - deploy-frontend:
+         requires: [run-migrations]
