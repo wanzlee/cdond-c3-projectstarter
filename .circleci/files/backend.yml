@@ -28,7 +28,7 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      KeyName: udapeople
+      KeyName: udapeople0811
       ImageId: ami-053b0d53c279acc90
       Tags:
         - Key: Name
