@@ -261,7 +261,24 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment
       - revert-migrations
-
+  # deploy-backend:
+  #   docker:
+  #     image: python:3.7-alpine3.11
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["04:21:ed:89:b7:0c:af:ca:6c:7d:4e:64:48:58:06:3a"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           # your code here
+  #     - run:
+  #         name: Deploy backend
+  #         command: |
+  #           # your code here
+  #     # Here's where you will add some code to rollback on failure  
 workflows:
   default:
     jobs:
@@ -280,9 +297,9 @@ workflows:
           filters:
             branches:
               only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      # - configure-infrastructure:
+      #    requires: [deploy-infrastructure]
+      # - run-migrations:
+      #    requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #    requires: [run-migrations]
