@@ -255,7 +255,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --force
+            npm audit fix
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -274,11 +274,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible
+            apk add --update tar gzip ansible curl nodejs npm
             pip3 install awscli
-            apt update
-            apt-get install curl
-            apt install nodejs npm
       - run:
           name: Deploy backend
           command: |
