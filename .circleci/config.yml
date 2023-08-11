@@ -276,8 +276,9 @@ jobs:
           command: |
             apk add --update tar gzip ansible
             pip3 install awscli
-            sudo apt update
-            sudo apt install nodejs npm
+            apt update
+            apt-get install curl
+            apt install nodejs npm
       - run:
           name: Deploy backend
           command: |
