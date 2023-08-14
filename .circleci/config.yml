@@ -236,12 +236,17 @@ jobs:
       - revert-migrations
   deploy-frontend:
     docker:
-      - image: cimg/node:20.5.1
+      - image: amazon/aws-cli
     steps:
       - checkout
       - attach_workspace:
           at: ~/
-      - dependencies
+      - run:
+          name: Install basic package
+          command: |
+            yum install -y tar gzip curl
+            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
@@ -257,6 +262,9 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit fix --force
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure
       - destroy-environment
       - revert-migrations
@@ -315,5 +323,5 @@ workflows:
          requires: [configure-infrastructure]
       - deploy-frontend:
          requires: [run-migrations]
-      # - deploy-backend:
-      #    requires: [run-migrations]
+      - deploy-backend:
+         requires: [run-migrations]
