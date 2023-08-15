@@ -261,7 +261,7 @@ jobs:
             pip3 install --upgrade pip
             pip3 install awscli
       - attach_workspace:
-          at: ~/
+          at: ~/project/.circleci/ansible
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -289,8 +289,6 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            mkdir /root/project/.circleci/ansible/roles/deploy/files
-            cp /root/project/artifact.tar.gz /root/project/.circleci/ansible/roles/deploy/files
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
       - destroy-environment
