@@ -239,14 +239,14 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
-          name: Install basic package
+          name: Install dependencies
           command: |
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
@@ -254,13 +254,12 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
+            cat frontend/.env      
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
@@ -275,19 +274,18 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["57:fa:aa:ec:0f:c2:b0:03:a7:7c:c9:6e:8c:1f:9c:a0"]
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible curl nodejs npm
-            pip3 install awscli
+      #      pip3 install awscli
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy backend
           command: |
             cd backend
             npm i
-            npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm run build
             cd ..
