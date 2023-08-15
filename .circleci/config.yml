@@ -35,26 +35,6 @@ commands:
                 npm install
                 npm run migration:revert
               fi
-  dependencies:
-    description: Download dependencies
-    #e.g. Python, Ansible, Node, NPM, and AWS CLI.
-    steps:
-      - run:
-          name: Install basic package
-          command: |
-            sudo apt update
-            sudo apt install -y tar gzip curl software-properties-common
-      - run:
-          name: Install aws-cli
-          command: |
-            sudo apt install -y awscli
-            aws --version
-      - run:
-          name: Install ansible
-          command: |
-            sudo apt install -y ansible
-            ansible --version
-
 jobs:
   build-frontend:
     docker:
@@ -245,8 +225,8 @@ jobs:
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Get backend url
           command: |
@@ -260,8 +240,8 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --force
             npm run build
+            npm audit fix --audit-level=critical --force
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure
@@ -277,16 +257,16 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible curl nodejs npm
-      #      pip3 install awscli
+            apk add --update tar gzip ansible curl nodejs npm aws-cli
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Deploy backend
           command: |
             cd backend
             npm i
-            npm audit fix --force
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
