@@ -6,6 +6,7 @@
     update_cache: yes
     upgrade: 'yes'
 - name: Install nodejs and npm
+  become: true
   apt:
     name: ["nodejs", "npm"]
     state: latest
@@ -18,6 +19,7 @@
     production: yes
     state: present
 - name: Create directory for backend
+  become: true
   file:
     path: /home/ubuntu/backend
     state: directory
@@ -27,6 +29,7 @@
     src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/backend
 - name: Unarchive backend files
+  become: true
   unarchive:
     src: /home/ubuntu/backend/artifact.tar.gz
     dest: /home/ubuntu/backend
@@ -38,6 +41,7 @@
     npm i
     npm run build
 - name: Run PM2
+  become: true
   shell: |
     cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
