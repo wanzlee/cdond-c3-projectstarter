@@ -283,7 +283,7 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cat ~/project/.circleci/ansible/inventory.txt
-            cd ansible
+            cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
