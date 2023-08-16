@@ -272,8 +272,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible nodejs npm tar gzip
-            npm install -g pm2
+            apk add --update ansible nodejs npm tar gzip curl
             pip3 install awscli
       - run:
           name: Deploy backend
@@ -284,7 +283,7 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cat ~/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
   smoke-test:
