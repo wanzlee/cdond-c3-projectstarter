@@ -190,12 +190,18 @@ jobs:
       - destroy-environment
   run-migrations:
     docker:
-      - image: cimg/node:20.5.1
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys:
             - build-backend
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt upgrade -y
+            sudo apt install -y awscli
       - run:
           name: Run migrations
           command: |
@@ -208,8 +214,10 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." ./migrations_dump.txt
             then
+              echo Migration OK
               curl https://kvdb.io/BwgZrp6R4R39Dhm7tFu5V6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             else
+              echo Migration failed
               curl https://kvdb.io/BwgZrp6R4R39Dhm7tFu5V6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '0'
             fi
       - destroy-environment
