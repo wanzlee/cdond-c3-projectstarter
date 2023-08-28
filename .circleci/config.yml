@@ -193,16 +193,15 @@ jobs:
       - image: circleci/node:14.18.1
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - build-backend
       - run:
           name: Run migrations
           command: |
-            cd backend
-            npm install
-            npm run migrations > migrations_dump.txt
-            cat migrations_dump.txt
+          cd backend
+          sudo apt update
+          sudo apt install -y awscli
+          sudo npm install
+          npm run migrations > migrations_dump.txt
+          cat migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
           command: |
