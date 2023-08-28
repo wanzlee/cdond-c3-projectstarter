@@ -190,7 +190,7 @@ jobs:
       - destroy-environment
   run-migrations:
     docker:
-      - image: cimg/node:14.17.4
+      - image: circleci/node:14.18.1
     steps:
       - checkout
       - restore_cache:
@@ -210,8 +210,6 @@ jobs:
           command: |
             cd backend
             npm install
-            sudo npm audit fix --audit-level=critical
-            sudo npm audit fix
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
