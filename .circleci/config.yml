@@ -197,10 +197,10 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            sudo apt-get update
             sudo apt-get install -y awscli
             npm install
-            sudo npm audit fix
-            sudo npm run migrations > migrations_dump.txt
+            npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
