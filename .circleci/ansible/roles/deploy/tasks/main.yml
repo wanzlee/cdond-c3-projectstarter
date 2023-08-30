@@ -8,7 +8,9 @@
 - name: Install nodejs and npm
   become: true
   apt:
-    name: ["nodejs", "npm"]
+    name:
+      - nodejs=13.8
+      - npm
     state: latest
     update_cache: yes
 - name: Install pm2

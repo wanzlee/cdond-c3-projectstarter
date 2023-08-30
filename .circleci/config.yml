@@ -267,7 +267,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible nodejs=13.8 npm tar gzip curl openssh
+            apk add --update ansible nodejs npm tar gzip curl openssh
             pip3 install awscli
       - run:
           name: Add environment variables
@@ -309,7 +309,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs=13.8 npm aws-cli
+            apk add --update curl nodejs npm aws-cli
       - run:
           name: Backend smoke test.
           no_output_timeout: 30m
