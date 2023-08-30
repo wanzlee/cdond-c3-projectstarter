@@ -221,8 +221,8 @@ jobs:
               echo Migration failed
               curl https://kvdb.io/BwgZrp6R4R39Dhm7tFu5V6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '0'
             fi
-      - destroy-environment
-      - revert-migrations
+      #- destroy-environment
+      #- revert-migrations
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
