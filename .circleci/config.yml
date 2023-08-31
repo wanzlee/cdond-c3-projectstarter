@@ -273,19 +273,7 @@ jobs:
           command: |
             sudo apt update -y && sudo apt upgrade -y
             sudo apt install -y software-properties-common apt-utils
-            sudo apt -y install tar gzip unzip
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Install Ansible
-          command: |
-            sudo add-apt-repository ppa:deadsnakes/ppa
-            sudo apt update -y && sudo apt upgrade -y
-            sudo apt install python3.8 python3-distutils -y
-            curl https://bootstrap.pypa.io/pip/3.6/get-pip.py -o get-pip.py
-            python3 get-pip.py --user
-            python3 -m pip install --user ansible
+            sudo apt -y install tar gzip unzip awscli ansible curl
       - run:
           name: Add environment variables
           command: |
