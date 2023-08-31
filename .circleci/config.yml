@@ -272,8 +272,8 @@ jobs:
       - run:
           name: Get node version 13.8.0
           command: |
-            sudo npm install --global n
-            sudo n 13.8.0
+            npm install --global n
+            n 13.8.0
             hash -r
             node -v
       - run:
