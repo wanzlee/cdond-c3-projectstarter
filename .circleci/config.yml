@@ -267,8 +267,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible nodejs npm tar gzip curl openssh curl
+            apk add --update ansible npm tar gzip curl openssh curl
             pip3 install awscli
+      - run:
+          name: Get node version 13.8.0
+          command: |
+            sudo npm install --global n
+            sudo n 13.8.0
+            hash -r
+            node -v
       - run:
           name: Add environment variables
           command: |
