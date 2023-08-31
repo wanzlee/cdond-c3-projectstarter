@@ -274,7 +274,6 @@ jobs:
           command: |
             npm install --global n
             n 13.8.0
-            hash -r
             node -v
       - run:
           name: Add environment variables
