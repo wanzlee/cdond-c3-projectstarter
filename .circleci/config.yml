@@ -271,7 +271,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install tar gzip unzip awscli ansible curl
+            npm install tar gzip unzip curl
+            sudo apt-get update
+            sudo apt-get install -y ansible awscli
       - run:
           name: Add environment variables
           command: |
