@@ -255,7 +255,7 @@ jobs:
       - revert-migrations
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.11-rc-alpine
     steps:
       - checkout
       - add_ssh_keys:
@@ -265,15 +265,10 @@ jobs:
       - restore_cache:
           keys: [build-backend]
       - run:
-          name: Node version
-          command: |
-            node --version
-      - run:
           name: Install dependencies
           command: |
-            npm install tar gzip unzip curl
-            sudo apt update
-            sudo apt install -y ansible awscli
+            apk add --update ansible nodejs npm tar gzip curl openssh curl
+            pip3 install awscli
       - run:
           name: Add environment variables
           command: |
