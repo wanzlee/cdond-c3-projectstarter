@@ -273,7 +273,6 @@ jobs:
           name: Get node version 13.8.0
           command: |
             npm install --global n
-            n 13.8.0
             node -v
       - run:
           name: Add environment variables
