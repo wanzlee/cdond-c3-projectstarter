@@ -261,21 +261,18 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["57:fa:aa:ec:0f:c2:b0:03:a7:7c:c9:6e:8c:1f:9c:a0"]
       - attach_workspace: 
-          at: ~/
+          at: .
       - restore_cache:
           keys: [build-backend]
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible npm tar gzip curl openssh curl
-            pip3 install awscli
-      - run:
-          name: Get node version 13.8.0
-          command: |
-            apk add nodejs
-            npm install n
-            n 13.8.0
-            node -v
+            apk add --update ansible curl openssh nodejs npm rsync
+            ansible --version
+            pip install --upgrade pip
+            pip install awscli
+            aws --version
+            cd backend
       - run:
           name: Add environment variables
           command: |
@@ -294,14 +291,21 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
       - run:
+          name: Compress Backend
+          command: |
+            [[ ! -d backend ]] && mkdir backend
+            env="backend/.env" 
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la
+      - attach_workspace:
+          at: ~/      
+      - run:
           name: Deploy backend
           command: |
             cd backend
             npm i
             npm run build
-            cp package* ./dist
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
