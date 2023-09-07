@@ -272,7 +272,6 @@ jobs:
             pip install --upgrade pip
             pip install awscli
             aws --version
-            cd backend
       - run:
           name: Add environment variables
           command: |
@@ -291,12 +290,10 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
       - run:
-          name: Compress Backend
+          name: Compress dist Files
           command: |
-            [[ ! -d backend ]] && mkdir backend
-            env="backend/.env" 
-            tar -C backend -czvf artifact.tar.gz .
-            ls -la
+            cd /home
+            tar czf backend.tar.gz -P /home/circleci/project/backend
       - attach_workspace:
           at: ~/      
       - run:
