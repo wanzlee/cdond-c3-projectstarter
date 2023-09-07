@@ -290,19 +290,13 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
       - run:
-          name: Compress dist Files
-          command: |
-            cd /home
-            tar czf backend.tar.gz -P /home/circleci/project/backend
-      - attach_workspace:
-          at: ~/      
-      - run:
           name: Deploy backend
           command: |
             cd backend
             npm i
             npm run build
             cd ..
+            tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
