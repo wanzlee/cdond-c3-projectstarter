@@ -222,15 +222,23 @@ jobs:
       - revert-migrations
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip curl
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
+            sudo apt update && sudo apt upgrade            
+            sudo apt install curl
+      - run:
+          name: Install aws
+          command: |                        
+            sudo apt install curl
+            sudo apt install unzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            aws --version
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -300,7 +308,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
   smoke-test:
