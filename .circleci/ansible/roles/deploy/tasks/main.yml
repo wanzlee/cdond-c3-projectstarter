@@ -1,52 +1,56 @@
-- name: Copy backend files
+---
+- name: "Creates backend app directory"
+  become: true
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+    mode: 0755
+
+- name: "copy artifact"
   become: true
   copy:
-    src: /home/backend.tar.gz
-    dest: /home/ubuntu/backend.tar.gz
-    
-- name: "copy backend binaries"
-  become: yes
-  synchronize:
-    src: ../../backend/dist
+    src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend
-    recursive: true
 
-- name: "copy node_modules"
-  become: yes
-  synchronize:
-    src: ../../backend/node_modules
+- name: Extract artifact files
+  unarchive:
+    src: /home/ubuntu/backend/artifact.tar.gz
     dest: /home/ubuntu/backend
-    recursive: true
-    
-- name: "copy packages"
-  become: yes
-  synchronize:
-    src: ../../backend
-    dest: /home/ubuntu/backend
-    recursive: false
+    copy: no
 
-- name: Prepare Env
+- name: "Installing Node Dependencies"
   shell: |
-    sudo npm i
-    npm i pm2 -g
-    sudo npm i npm@latest -g
-    sudo npm i webpack-dev-server -g
-  args:
-    chdir: /home/ubuntu/backend/dist
-    
-- name: Start PM2
-  become: true
-  command: pm2 start main.js --update-env
-  args:
-    chdir: /home/ubuntu/backend/dist
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "./migrations"
-    TYPEORM_MIGRATIONS: "./migrations/*.js"
-    TYPEORM_ENTITIES: "./modules/domain/*/entities/*.entity.js"
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+    cd /home/ubuntu/backend
+    npm i
+    npm i -g pm2
+
+- name: "exporting env variables"
+  become: yes
+  shell:  |
+    touch /etc/profile.d/env.sh
+    echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
+    echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
+    echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
+    echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
+    echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
+    echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
+    echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
+    echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
+    echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
+    echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
+    . /etc/environment
+    . ~/.bashrc
+
+  register: execute_node
+
+- name: "Executing Node app with PM2" 
+  shell: |
+    cd /home/ubuntu/backend
+    npm install  
+    npm run build
+    pm2 start npm --name backend -- start
+
+- name: "Configure pm2 to start as service"
+  shell: |
+    sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu/backend"
+    pm2 save
