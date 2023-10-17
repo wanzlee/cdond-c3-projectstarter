@@ -1,59 +1,52 @@
----
-# Tasks for deploying the backend
-- name: Update and upgrade apt
+- name: Copy backend files
   become: true
-  apt:
-    update_cache: yes
-    upgrade: 'yes'
-- name: Install nodejs and npm
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-- name: Install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-- name: Create directory for backend
-  become: true
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-- name: Unarchive backend files
-  unarchive:
-    src: artifact.tar.gz
-    dest: /home/ubuntu/backend
-- name: Export env variables
-  become: yes  
-  shell:  |    
-    touch /etc/profile.d/env.sh
-    echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
-    echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
-    echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
-    echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
-    echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
-    echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
-    echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
-    echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
-    echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
-    echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
-    . /etc/environment
-    . ~/.bashrc
-  register: execute_node
-
-- name: Start app
+  copy:
+    src: /home/backend.tar.gz
+    dest: /home/ubuntu/backend.tar.gz
+    
+- name: "copy backend binaries"
   become: yes
+  synchronize:
+    src: ../../backend/dist
+    dest: /home/ubuntu/backend
+    recursive: true
+
+- name: "copy node_modules"
+  become: yes
+  synchronize:
+    src: ../../backend/node_modules
+    dest: /home/ubuntu/backend
+    recursive: true
+    
+- name: "copy packages"
+  become: yes
+  synchronize:
+    src: ../../backend
+    dest: /home/ubuntu/backend
+    recursive: false
+
+- name: Prepare Env
   shell: |
-    cd /home/ubuntu/backend
-    npm i
-    npm run build
-    cp package* ./dist
-    cd dist
-    npm i
-    pm2 stop default
-    pm2 start npm -- start
-    cat ~/.pm2/logs/main-out.log
+    sudo npm i
+    npm i pm2 -g
+    sudo npm i npm@latest -g
+    sudo npm i webpack-dev-server -g
+  args:
+    chdir: /home/ubuntu/backend/dist
+    
+- name: Start PM2
+  become: true
+  command: pm2 start main.js --update-env
+  args:
+    chdir: /home/ubuntu/backend/dist
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/*/entities/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
