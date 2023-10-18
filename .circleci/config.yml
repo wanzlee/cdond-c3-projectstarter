@@ -268,10 +268,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["57:fa:aa:ec:0f:c2:b0:03:a7:7c:c9:6e:8c:1f:9c:a0"]
-      - attach_workspace: 
+      - attach_workspace:
           at: .
-      - restore_cache:
-          keys: [build-backend]
       - run:
           name: Install dependencies
           command: |
@@ -297,6 +295,16 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             cat backend/.env
+            cd backend
+      - run:
+          name: Compress Backend
+          command: |
+            [[ ! -d backend ]] && mkdir backend
+            myenv="backend/.env" 
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la  
+      - attach_workspace:
+          at: ~/
       - run:
           name: Compress dist Files
           command: |
@@ -305,12 +313,11 @@ jobs:
             npm i
             npm run build
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
       - run:
           name: Deploy backend
           command: |
             cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
+            echo "Contents of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
