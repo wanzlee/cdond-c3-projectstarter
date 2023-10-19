@@ -61,7 +61,7 @@
 
 - name: print message
   debug:
-    msg: "{{ execute_node.stdout_lines }}"
+    msg: "{{ execute_node_server.stdout_lines }}"
 
 - name: "start server"
   become: true
