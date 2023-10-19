@@ -19,45 +19,81 @@
     dest: /home/ubuntu/backend
     copy: no
 
-- name: "Installing Node Dependencies"
-  become: yes
+# - name: "Installing Node Dependencies"
+#   become: yes
+#   shell: |
+#     cd /home/ubuntu/backend
+#     npm i
+#     npm i -g pm2
+
+# - name: "exporting env variables"
+#   become: yes
+#   shell:  |
+#     touch /etc/profile.d/env.sh
+#     echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
+#     echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
+#     echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
+#     echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
+#     echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
+#     echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
+#     echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
+#     echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
+#     echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
+#     echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
+#     . /etc/environment
+#     . ~/.bashrc
+
+#   register: execute_node
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+    
+- name: "Executing node"
   shell: |
-    cd /home/ubuntu/backend
-    npm i
-    npm i -g pm2
-
-- name: "exporting env variables"
-  become: yes
-  shell:  |
-    touch /etc/profile.d/env.sh
-    echo export TYPEORM_HOST=$TYPTYPEORM_HOST >> /etc/profile.d/env.sh
-    echo export TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> /etc/profile.d/env.sh
-    echo export TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> /etc/profile.d/env.sh
-    echo export TYPEORM_HOST=$TYPEORM_HOST >> /etc/profile.d/env.sh
-    echo export TYPEORM_PORT=$TYPEORM_PORT >> /etc/profile.d/env.sh
-    echo export TYPEORM_USERNAME=$TYPEORM_USERNAME >> /etc/profile.d/env.sh
-    echo export TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> /etc/profile.d/env.sh
-    echo export TYPEORM_DATABASE=$TYPEORM_DATABASE >> /etc/profile.d/env.sh
-    echo export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> /etc/profile.d/env.sh
-    echo export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> /etc/profile.d/env.sh
-    . /etc/environment
-    . ~/.bashrc
-
-  register: execute_node
-
-- name: "Executing Node app with PM2" 
-  become: yes
-  shell: |
-    cd /home/ubuntu/backend
+    cd ~/backend
     npm install
-    # pm2 stop default
-    # npm run start:prod
-    # npm prestart:prod
-    pm2 ls
-    pm2 start npm -- start --wait-ready
-    pm2 ls
-  register: execute_node
+    pm2 stop default
+    pm2 start npm -- run start
+  register: execute_node_server
 
 - name: print message
   debug:
     msg: "{{ execute_node.stdout_lines }}"
+
+- name: "start server"
+    become: true
+    command: pm2 start -f ./main.js
+    args:
+      chdir: /home/ubuntu/backend/dist
+    environment:
+      ENVIRONMENT: production
+      TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+      TYPEORM_MIGRATIONS_DIR: "./migrations"
+      TYPEORM_MIGRATIONS: "./migrations/*.js"
+      TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+      TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+      TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+      TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+      TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+      TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+    register: execute_node
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
+# - name: "Executing Node app with PM2" 
+#   become: yes
+#   shell: |
+#     cd /home/ubuntu/backend
+#     npm install
+#     pm2 start npm -- start --wait-ready
+#     pm2 ls
+#   register: execute_node
+
+# - name: print message
+#   debug:
+#     msg: "{{ execute_node.stdout_lines }}"
