@@ -53,9 +53,9 @@
 - name: "Executing node"
   become: true
   shell: |
-    cd ~/backend
+    cd /home/ubuntu/backend
     npm install --production
-    pm2 stop default
+    npm run build
   register: execute_node_server
 
 - name: print message
