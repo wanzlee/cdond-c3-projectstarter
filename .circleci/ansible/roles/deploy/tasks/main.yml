@@ -13,7 +13,6 @@
     dest: /home/ubuntu/backend
 
 - name: Extract artifact files
-  become: yes
   unarchive:
     src: /home/ubuntu/backend/artifact.tar.gz
     dest: /home/ubuntu/backend
@@ -44,14 +43,14 @@
 #     . ~/.bashrc
 
 - name: "install dependencies."
-  become: true
+  #become: true
   apt:
     name: ["nodejs", "npm"]
     state: latest
     update_cache: yes
     
 - name: "Executing node"
-  become: true
+  #become: true
   shell: |
     cd /home/ubuntu/backend
     npm install
@@ -62,7 +61,6 @@
     msg: "{{ execute_node_server.stdout_lines }}"
 
 - name: "Start backend with pm2"
-  become: true
   command: pm2 start npm -- run start
   args:
     chdir: /home/ubuntu/backend
