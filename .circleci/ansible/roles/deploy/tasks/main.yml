@@ -54,8 +54,7 @@
   become: true
   shell: |
     cd /home/ubuntu/backend
-    npm install --production
-    npm run build
+    npm install
   register: execute_node_server
 
 - name: print message

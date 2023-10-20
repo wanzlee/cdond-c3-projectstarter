@@ -310,8 +310,9 @@ jobs:
           command: |
             cd backend
             ls
-            npm i
-            npm run build
+            sudo npm i
+            sudo npm run build
+            ls -alt
             cd ..
       - run:
           name: Deploy backend
