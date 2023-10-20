@@ -43,7 +43,6 @@
 #     . /etc/environment
 #     . ~/.bashrc
 
-#   register: execute_node
 - name: "install dependencies."
   become: true
   apt:
@@ -65,9 +64,10 @@
 
 - name: "start server"
   become: true
-  command: pm2 start -f ./main.js
-  args:
-    chdir: /home/ubuntu/backend/dist
+  shell: |
+    sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu/backend"
+    pm2 save
+    pm2 ls
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
