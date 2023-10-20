@@ -310,8 +310,8 @@ jobs:
           command: |
             cd backend
             ls
-            sudo npm i
-            sudo npm run build
+            npm i
+            npm run build
             ls -alt
             cd ..
       - run:
