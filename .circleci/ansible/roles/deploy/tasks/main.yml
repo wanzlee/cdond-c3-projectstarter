@@ -55,6 +55,7 @@
   shell: |
     cd /home/ubuntu/backend
     npm install
+    npm run build
   register: execute_node_server
 
 - name: print message
@@ -62,9 +63,10 @@
     msg: "{{ execute_node_server.stdout_lines }}"
 
 - name: "Start backend with pm2"
-  command: pm2 start npm -- run start
+  #command: pm2 start npm -- run start
+  command: pm2 start -f ./main.js
   args:
-    chdir: /home/ubuntu/backend
+    chdir: /home/ubuntu/backend/dist
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
