@@ -32,7 +32,7 @@
     cd /home/ubuntu/backend
     npm install
     npm run build
-  register: complie_app
+  register: compile_app
 
 - name: print message
   debug:
