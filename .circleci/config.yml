@@ -38,30 +38,37 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - run:
           name: Build front-end
           command: |
             cd frontend
-            npm install
-            npm run build
+            ls -ltr
+            if [ ! -d "node_modules" ]; then
+              # npm update && npm upgrade
+              npm install
+              npm run build
+            fi
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - run:
           name: Back-end build
           command: |
             cd backend
-            npm install
-            npm run build
+            if [ ! -d "node_modules" ]; then
+              # npm update && npm upgrade &&
+              npm install &&
+              npm run build
+            fi
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
