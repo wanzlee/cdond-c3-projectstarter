@@ -44,6 +44,8 @@
   args:
     chdir: /home/ubuntu/backend/dist
   environment:
+    NODE_ENV: production
+    VERSION: 1
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
     TYPEORM_MIGRATIONS_DIR: "./migrations"

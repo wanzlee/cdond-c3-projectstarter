@@ -280,6 +280,8 @@ jobs:
       - run:
           name: Add environment variables
           command: |
+            echo NODE_ENV="production" >> backend/.env
+            echo VERSION="1" >> backend/.env
             echo ENVIRONMENT="production" >> "backend/.env"
             echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
             echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID  >> "backend/.env"
